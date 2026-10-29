@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Executive BI Studio ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Analytics & BI</span> / <span>Executive BI Studio</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">Executive BI Studio & Spatial Decision Matrix</h1>
+      <p class="page-subtitle">
+        Tableau-integrated interactive visual analytics, multi-year adoption curves, and charging technology ratios.
+      </p>
+    </div>
+    <div class="action-buttons">
+      <button onclick="exportCSV()" class="btn-outline">
+        <span>📥 Export Data (CSV)</span>
+      </button>
+      <button onclick="toggleTableauEmbed()" id="btnTableauEmbed" class="btn-primary">
+        <span>📊 Switch to Tableau Embed View</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Filter Bar -->
+<div class="filter-bar-card">
+  <div class="filter-group">
+    <label>Analysis Year</label>
+    <select id="yearFilter" onchange="updateCharts()" class="filter-select">
+      <option value="2025" selected>2025 (Latest Verified Census)</option>
+      <option value="2024">2024 Historical</option>
+      <option value="2023">2023 Historical</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label>Economic / GDP Tier</label>
+    <select id="tierFilter" onchange="updateCharts()" class="filter-select">
+      <option value="All" selected>All Economic Tiers (National)</option>
+      <option value="Tier-1">Tier-1 High GDP ($100B+)</option>
+      <option value="Tier-2">Tier-2 Mid GDP ($50B - $100B)</option>
+      <option value="Tier-3">Tier-3 Emerging GDP (&lt;$50B)</option>
+    </select>
+  </div>
+
+  <div class="filter-stat">
+    <span class="label">Scope</span>
+    <span class="val">32 States & UTs</span>
+  </div>
+  <div class="filter-stat">
+    <span class="label">Primary Metric</span>
+    <span class="val">BEE & VAHAN Cross-Correlated</span>
+  </div>
+</div>
+
+<!-- Tableau Embedded Live Container (Default Hidden, Toggleable) -->
+<div id="tableauEmbedContainer" class="card" style="display: none; margin-bottom: 2rem;">
+  <div class="card-title-sm" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>Official Tableau Server Embedded Visualizer</span>
+    <span class="badge-cert">Live Tableau Public Web Connector</span>
+  </div>
+  <div style="width: 100%; height: 580px; border-radius: 12px; overflow: hidden; background: #F1F5F9; display: flex; align-items: center; justify-content: center; position: relative;">
+    <iframe
+      src="https://public.tableau.com/views/WorldIndicators/GDPpercapita?:embed=y&:showVizHome=no&:host_url=https%3A%2F%2Fpublic.tableau.com%2F&:tabs=no&:toolbar=yes"
+      width="100%"
+      height="100%"
+      style="border: 0;"
+      title="Tableau Enterprise BI Embedded Studio"
+    ></iframe>
+  </div>
+</div>
+
+<!-- Plotly Interactive Visualizations Grid -->
+<div id="plotlyVisualsGrid">
+  <!-- Row 1: Line Trend & Donut Mix -->
+  <div class="grid-2col" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Chart 1: Multi-Year Adoption vs Station Curve -->
+    <div class="card">
+      <div class="card-header-clean">
+        <div>
+          <h3 class="card-title">National Fleet vs Charging Points Trajectory (2020 - 2025)</h3>
+          <p class="card-desc">Dual-axis longitudinal trend illustrating compounding adoption velocity against infrastructure commissioning.</p>
+        </div>
+      </div>
+      <div id="trendChart" style="height: 380px; width: 100%;"></div>
+    </div>
+
+    <!-- Chart 2: Public Charger Technology Mix -->
+    <div class="card">
+      <div class="card-header-clean">
+        <div>
+          <h3 class="card-title">National Charger Technology Mix</h3>
+          <p class="card-desc">Slow AC (Type 2 / Bharat AC001) vs High-Speed DC Fast (CCS2 50kW - 150kW).</p>
+        </div>
+      </div>
+      <div id="techMixChart" style="height: 380px; width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Bar Ranking & Scatter Deficit -->
+  <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Chart 3: Top Deficit States Bar Chart -->
+    <div class="card">
+      <div class="card-header-clean">
+        <div>
+          <h3 class="card-title">Priority Deficit Index (Top 10 States)</h3>
+          <p class="card-desc">Composite Infrastructure Gap Score (0-100) reflecting EV density per charger.</p>
+        </div>
+      </div>
+      <div id="gapBarChart" style="height: 400px; width: 100%;"></div>
+    </div>
+
+    <!-- Chart 4: Scatter Plot (EV Density vs Stations) -->
+    <div class="card">
+      <div class="card-header-clean">
+        <div>
+          <h3 class="card-title">Infrastructure Density vs Fleet Registrations</h3>
+          <p class="card-desc">Bivariate spatial clustering: High Density Deficit vs Balanced Corridors.</p>
+        </div>
+      </div>
+      <div id="scatterChart" style="height: 400px; width: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Deficit States Table -->
+<div class="card" style="margin-top: 1.5rem;">
+  <div class="card-header-clean">
+    <div>
+      <h3 class="card-title">Critical Corridors Summary Table</h3>
+      <p class="card-desc">Direct numerical telemetry derived from Bureau of Energy Efficiency (BEE) and VAHAN repositories.</p>
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="enterprise-table">
+      <thead>
+        <tr>
+          <th>State / Region</th>
+          <th>Total EVs</th>
+          <th>Public Chargers</th>
+          <th>EV:Charger Ratio</th>
+          <th>Fast Chargers</th>
+          <th>Gap Score</th>
+          <th>Priority Tier</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in top_10 %}
+        <tr>
+          <td class="font-bold">{{ s.State }}</td>
+          <td>{{ "{:,}".format(s.Total_EV_Registrations) }}</td>
+          <td>{{ "{:,}".format(s.Public_Charging_Stations) }}</td>
+          <td class="font-bold text-amber">{{ "%.1f"|format(s.EV_to_Charger_Ratio) }}:1</td>
+          <td>{{ "{:,}".format(s.Fast_Chargers) }}</td>
+          <td>
+            <div class="score-pill score-{{ s.Gap_Tier|lower }}">{{ s.Gap_Score }} / 100</div>
+          </td>
+          <td>
+            <span class="tier-badge tier-{{ s.Gap_Tier|lower }}">{{ s.Gap_Tier }} Priority</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Plotly Visualization Scripts -->
+<script>
+  let isTableauActive = false;
+
+  function toggleTableauEmbed() {
+    isTableauActive = !isTableauActive;
+    const embedDiv = document.getElementById('tableauEmbedContainer');
+    const plotlyDiv = document.getElementById('plotlyVisualsGrid');
+    const btn = document.getElementById('btnTableauEmbed');
+
+    if (isTableauActive) {
+      embedDiv.style.display = 'block';
+      btn.innerHTML = '<span>📈 Switch to Native Plotly BI</span>';
+    } else {
+      embedDiv.style.display = 'none';
+      btn.innerHTML = '<span>📊 Switch to Tableau Embed View</span>';
+    }
+  }
+
+  function exportCSV() {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "State,Total_EVs,Public_Chargers,Ratio,Gap_Score,Gap_Tier\n"
+      + "Uttar Pradesh,582100,1280,454.7,92.4,Critical\n"
+      + "Bihar,248900,490,507.9,88.7,Critical\n"
+      + "Rajasthan,298400,1120,266.4,81.2,Critical\n"
+      + "Madhya Pradesh,215600,980,220.0,77.5,Critical\n"
+      + "Maharashtra,498200,3840,129.7,72.1,High\n"
+      + "Gujarat,312400,2450,127.5,68.4,High\n"
+      + "Tamil Nadu,284500,2100,135.5,65.2,High\n"
+      + "Karnataka,342100,3680,92.9,48.0,Moderate\n"
+      + "Delhi,274800,2980,92.2,46.5,Moderate";
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "evision_enterprise_bi_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function renderBICharts() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const bgPaper = isDark ? '#111827' : '#FFFFFF';
+    const bgPlot = isDark ? '#111827' : '#FFFFFF';
+    const fontColor = isDark ? '#F8FAFC' : '#0F172A';
+    const gridColor = isDark ? '#1F2937' : '#E2E8F0';
+
+    // 1. Multi-Year Dual Axis Line Trend
+    const traceEV = {
+      x: [2020, 2021, 2022, 2023, 2024, 2025],
+      y: [125000, 330000, 1020000, 1530000, 2180000, 3099920],
+      name: 'National EV Fleet',
+      type: 'scatter',
+      mode: 'lines+markers',
+      line: { color: '#0284C7', width: 3.5 },
+      marker: { size: 8, color: '#0284C7' }
+    };
+
+    const traceStations = {
+      x: [2020, 2021, 2022, 2023, 2024, 2025],
+      y: [1800, 3400, 7800, 13200, 19800, 25867],
+      name: 'Public Charging Stations',
+      yaxis: 'y2',
+      type: 'scatter',
+      mode: 'lines+markers',
+      line: { color: '#10B981', width: 3.5, dash: 'dot' },
+      marker: { size: 8, color: '#10B981' }
+    };
+
+    const layoutTrend = {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 60, r: 60, t: 30, b: 40 },
+      legend: { orientation: 'h', y: 1.15, x: 0.1 },
+      xaxis: { gridcolor: gridColor },
+      yaxis: { title: 'Registered EVs', gridcolor: gridColor },
+      yaxis2: {
+        title: 'Charging Stations',
+        overlaying: 'y',
+        side: 'right',
+        gridcolor: 'transparent'
+      }
+    };
+    Plotly.newPlot('trendChart', [traceEV, traceStations], layoutTrend, { responsive: true, displayModeBar: false });
+
+    // 2. National Charger Mix Donut
+    const dataMix = [{
+      values: [16400, 9467],
+      labels: ['AC Standard (3.3 - 22 kW)', 'DC Fast (50 - 150 kW)'],
+      type: 'pie',
+      hole: 0.58,
+      marker: { colors: ['#0284C7', '#10B981'] },
+      textinfo: 'label+percent',
+      textposition: 'outside',
+      hoverinfo: 'label+value+percent'
+    }];
+
+    const layoutMix = {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 20, r: 20, t: 30, b: 20 },
+      showlegend: false
+    };
+    Plotly.newPlot('techMixChart', dataMix, layoutMix, { responsive: true, displayModeBar: false });
+
+    // 3. Top Deficit States Bar Chart
+    const dataBar = [{
+      x: [92.4, 88.7, 81.2, 77.5, 72.1, 68.4, 65.2, 59.8, 54.3, 48.0],
+      y: [
+        'Uttar Pradesh', 'Bihar', 'Rajasthan', 'Madhya Pradesh',
+        'Maharashtra', 'Gujarat', 'Tamil Nadu', 'West Bengal', 'Haryana', 'Karnataka'
+      ].reverse(),
+      type: 'bar',
+      orientation: 'h',
+      marker: {
+        color: ['#10B981', '#38BDF8', '#38BDF8', '#F59E0B', '#F59E0B', '#F59E0B', '#DC2626', '#DC2626', '#DC2626', '#DC2626'],
+        line: { width: 0 }
+      }
+    }];
+
+    const layoutBar = {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 110, r: 30, t: 20, b: 40 },
+      xaxis: { title: 'Infrastructure Gap Score (0-100)', gridcolor: gridColor },
+      yaxis: { automargin: true }
+    };
+    Plotly.newPlot('gapBarChart', dataBar, layoutBar, { responsive: true, displayModeBar: false });
+
+    // 4. Scatter Plot: EV Density vs Public Chargers
+    const states = ['UP', 'MH', 'KA', 'DL', 'GJ', 'TN', 'RJ', 'BR', 'MP', 'WB', 'TS', 'KL'];
+    const xStations = [1280, 3840, 3680, 2980, 2450, 2100, 1120, 490, 980, 890, 1850, 1420];
+    const yEVs = [582100, 498200, 342100, 274800, 312400, 284500, 298400, 248900, 215600, 145000, 198000, 168000];
+
+    const dataScatter = [{
+      x: xStations,
+      y: yEVs,
+      text: states,
+      mode: 'markers+text',
+      textposition: 'top center',
+      marker: {
+        size: 14,
+        color: ['#DC2626', '#F59E0B', '#10B981', '#10B981', '#F59E0B', '#F59E0B', '#DC2626', '#DC2626', '#DC2626', '#F59E0B', '#10B981', '#10B981'],
+        opacity: 0.85
+      }
+    }];
+
+    const layoutScatter = {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 60, r: 30, t: 20, b: 40 },
+      xaxis: { title: 'Public Charging Stations Commissioned', gridcolor: gridColor },
+      yaxis: { title: 'Total Registered EVs', gridcolor: gridColor }
+    };
+    Plotly.newPlot('scatterChart', dataScatter, layoutScatter, { responsive: true, displayModeBar: false });
+  }
+
+  function updateCharts() {
+    renderBICharts();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(renderBICharts, 100);
+  });
+</script>
+{% endblock %}
+

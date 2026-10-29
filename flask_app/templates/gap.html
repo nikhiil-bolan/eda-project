@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Regional Gap Index ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Analytics & BI</span> / <span>Regional Gap Index</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">National Infrastructure Gap Index (IGI)</h1>
+      <p class="page-subtitle">
+        State-by-state mathematical deficit ranking quantifying charging supply bottleneck severity across India.
+      </p>
+    </div>
+    <div>
+      <a href="/forecasting" class="btn-primary">
+        <span>Target Demand Projections (2030) →</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Methodology Explanation Card -->
+<div class="card" style="margin-bottom: 2rem; background: var(--bg-surface); border-left: 4px solid var(--primary-color);">
+  <div class="card-title-sm">Index Weighting Methodology (BEE & VAHAN Correlated)</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+    <div style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 8px;">
+      <span style="font-weight: 800; font-size: 0.8rem; color: var(--accent-rose);">30% Infrastructure Deficit</span>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">Public chargers shortfall relative to vehicle fleet size.</p>
+    </div>
+    <div style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 8px;">
+      <span style="font-weight: 800; font-size: 0.8rem; color: var(--accent-amber);">30% Ratio Pressure</span>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">Deviation from international benchmark of 20 EVs per charger.</p>
+    </div>
+    <div style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 8px;">
+      <span style="font-weight: 800; font-size: 0.8rem; color: var(--primary-color);">20% Growth Velocity Lag</span>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">YoY EV adoption percentage growth outpacing station commissioning.</p>
+    </div>
+    <div style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 8px;">
+      <span style="font-weight: 800; font-size: 0.8rem; color: var(--accent-teal);">20% Urbanization Factor</span>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">Metropolitan commuter congestion index and grid power readiness.</p>
+    </div>
+  </div>
+</div>
+
+<!-- State Gap Index Table -->
+<div class="card">
+  <div class="card-header-clean">
+    <h3 class="card-title">National State-by-State Deficit Rankings (2025)</h3>
+    <p class="card-desc">States sorted in descending order of Infrastructure Gap Severity.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="enterprise-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>State / Territory</th>
+          <th>EV Registrations</th>
+          <th>Public Chargers</th>
+          <th>EV:Charger Ratio</th>
+          <th>Gap Score (0-100)</th>
+          <th>Priority Tier</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in states %}
+        <tr>
+          <td class="font-bold text-muted">#{{ loop.index }}</td>
+          <td class="font-bold">{{ s.State }}</td>
+          <td>{{ "{:,}".format(s.Total_EV_Registrations) }}</td>
+          <td>{{ "{:,}".format(s.Public_Charging_Stations) }}</td>
+          <td class="font-bold {% if s.EV_to_Charger_Ratio > 200 %}text-rose{% elif s.EV_to_Charger_Ratio > 100 %}text-amber{% else %}text-green{% endif %}">
+            {{ "%.1f"|format(s.EV_to_Charger_Ratio) }}:1
+          </td>
+          <td style="min-width: 140px;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="font-bold" style="font-size: 0.75rem;">{{ s.Gap_Score }}</span>
+              <div style="flex: 1; height: 8px; background: var(--bg-subtle); border-radius: 4px; overflow: hidden;">
+                <div style="width: {{ s.Gap_Score }}%; height: 100%; background: {% if s.Gap_Score >= 75 %}#DC2626{% elif s.Gap_Score >= 60 %}#F59E0B{% elif s.Gap_Score >= 40 %}#EAB308{% else %}#10B981{% endif %}; border-radius: 4px;"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="tier-badge tier-{{ s.Gap_Tier|lower }}">{{ s.Gap_Tier }} Priority</span>
+          </td>
+          <td>
+            <a href="/forecasting" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.7rem; text-decoration: none;">
+              Forecast →
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

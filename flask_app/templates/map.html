@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Station Map ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Charging Network</span> / <span>Spatial Map</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">National EV Charging Spatial Map</h1>
+      <p class="page-subtitle">
+        Spatial distribution, real-time connector telemetry, and route reservation across metropolitan corridors.
+      </p>
+    </div>
+    <div>
+      <a href="/stations" class="btn-outline">
+        <span>📋 Switch to List View</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="map-layout" style="display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; height: 680px; margin-bottom: 2rem;">
+  <!-- Left Side: Station List for Click to Center -->
+  <div class="card" style="overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+    <div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+      <h3 style="font-size: 0.85rem; font-weight: 800;">Corridor Hubs ({{ stations|length }})</h3>
+      <span style="font-size: 0.7rem; color: var(--text-muted);">Click any hub to focus map</span>
+    </div>
+
+    {% for st in stations %}
+    <div
+      class="map-station-item"
+      onclick="focusStation({{ st.latitude }}, {{ st.longitude }}, '{{ st.name }}')"
+      style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 10px; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.2s;"
+    >
+      <span class="station-badge">{{ st.operator }}</span>
+      <h4 style="font-size: 0.8rem; font-weight: 800; margin-top: 0.15rem;">{{ st.name }}</h4>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0;">{{ st.city }}, {{ st.state }}</p>
+      <div style="display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700;">
+        <span class="text-green">{{ st.availableConnectors }} bays free</span>
+        <span class="text-blue">{{ st.powerKW }} kW CCS2</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Right Side: Leaflet Map Container -->
+  <div class="card" style="padding: 0; overflow: hidden; border-radius: 16px; position: relative;">
+    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+  </div>
+</div>
+
+<script>
+  let map;
+  const stationsData = {{ stations | tojson }};
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize map centered at India's central coordinates
+    map = L.map('leafletMap').setView([20.5937, 78.9629], 5);
+
+    // Modern OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors | EVision Spatial'
+    }).addTo(map);
+
+    // Custom EV Marker Icon
+    const evIcon = L.divIcon({
+      className: 'custom-ev-marker',
+      html: '<div style="background: #0284C7; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid white;">⚡</div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+
+    // MarkerCluster Group for scalable rendering (groups hundreds of pins gracefully)
+    const markersCluster = (typeof L.markerClusterGroup === 'function') 
+      ? L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 45 })
+      : null;
+
+    // Add markers for all stations
+    stationsData.forEach(st => {
+      const popupHtml = `
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; min-width: 200px;">
+          <div style="font-size: 10px; font-weight: 800; color: #0284C7; text-transform: uppercase;">${st.operator}</div>
+          <h4 style="font-size: 13px; font-weight: 800; margin: 2px 0 4px;">${st.name}</h4>
+          <p style="font-size: 11px; color: #64748B; margin-bottom: 8px;">${st.address}</p>
+          <div style="font-size: 11px; margin-bottom: 8px; border-top: 1px solid #E2E8F0; padding-top: 4px;">
+            <div>Power: <b>${st.powerKW} kW (${st.connectorType})</b></div>
+            <div>Bays: <b style="color: #10B981;">${st.availableConnectors} / ${st.totalConnectors} Free</b></div>
+            <div>Tariff: <b>₹${st.pricePerKWh}/kWh</b></div>
+          </div>
+          <a href="/booking/${st.id}" style="display: block; text-align: center; background: #0284C7; color: white; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-decoration: none;">Reserve Bay →</a>
+        </div>
+      `;
+      const marker = L.marker([st.latitude, st.longitude], { icon: evIcon }).bindPopup(popupHtml);
+      if (markersCluster) {
+        markersCluster.addLayer(marker);
+      } else {
+        marker.addTo(map);
+      }
+    });
+
+    if (markersCluster) {
+      map.addLayer(markersCluster);
+    }
+
+    // If user's live GPS coordinates are stored in session, add a user marker
+    const userLat = parseFloat(sessionStorage.getItem('userLat'));
+    const userLon = parseFloat(sessionStorage.getItem('userLon'));
+    if (!isNaN(userLat) && !isNaN(userLon)) {
+      const userIcon = L.divIcon({
+        className: 'user-gps-marker',
+        html: '<div style="background: #10B981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.3); border: 2px solid white;">📍</div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+      L.marker([userLat, userLon], { icon: userIcon })
+        .addTo(map)
+        .bindPopup('<b>Your Live Location</b>')
+        .openPopup();
+      map.setView([userLat, userLon], 11);
+    } else {
+      map.setView([19.0760, 72.8777], 9); // Default Mumbai
+    }
+  });
+
+  function focusStation(lat, lon, name) {
+    if (map) {
+      map.setView([lat, lon], 14, { animate: true });
+    }
+  }
+</script>
+{% endblock %}
+

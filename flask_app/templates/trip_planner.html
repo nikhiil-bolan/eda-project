@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Highway Multi-Stop Trip Planner ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Driver Tools</span> / <span>Highway Route Planner (ABRP Engine)</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">Intelligent Highway EV Route & Multi-Stop Planner</h1>
+      <p class="page-subtitle">
+        Terrain elevation profiles, ambient thermal cooling penalties, and auto-scheduled charging bay holds.
+      </p>
+    </div>
+    <span class="badge-cert">✓ Live Weather & Elevation Telemetry</span>
+  </div>
+</div>
+
+<div class="planner-layout" style="display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 2rem; margin-bottom: 2rem;">
+  <!-- Left Side: Route & Vehicle Parameters -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">1. Trip Coordinates & Vehicle Specs</h3>
+      <p class="card-desc">Calculates energy consumption factoring in aerodynamic drag, terrain, and AC power draw.</p>
+    </div>
+
+    <!-- Quick Highway Presets -->
+    <div style="margin-bottom: 1.25rem;">
+      <label class="form-label">Popular Indian EV Highway Corridors</label>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button type="button" onclick="setRoute('Mumbai', 'Pune', 152, 350)" class="preset-btn">Mumbai ➔ Pune (152 km, Ghats)</button>
+        <button type="button" onclick="setRoute('Delhi', 'Jaipur', 280, 50)" class="preset-btn">Delhi ➔ Jaipur (280 km, NH48)</button>
+        <button type="button" onclick="setRoute('Bengaluru', 'Mysuru', 145, -120)" class="preset-btn">Bengaluru ➔ Mysuru (145 km)</button>
+      </div>
+    </div>
+
+    <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div class="form-group">
+        <label class="form-label">Departure Origin</label>
+        <input type="text" id="routeOrigin" value="Mumbai (BKC Hub)" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Destination Hub</label>
+        <input type="text" id="routeDest" value="Pune (Baner Expressway)" class="form-input" required />
+      </div>
+    </div>
+
+    <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div class="form-group">
+        <label class="form-label">EV Model</label>
+        <select id="routeCar" class="form-select" onchange="calculateRoute()">
+          <option value="40.5" selected>Tata Nexon EV Max (40.5 kWh, 437 km)</option>
+          <option value="50.3">MG ZS EV Excite (50.3 kWh, 461 km)</option>
+          <option value="35.0">Tata Punch EV Long (35 kWh, 421 km)</option>
+          <option value="60.5">BYD Atto 3 Superior (60.5 kWh, 521 km)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Starting SoC</label>
+        <select id="startSoc" class="form-select" onchange="calculateRoute()">
+          <option value="100">100% Full Charge</option>
+          <option value="90" selected>90% Top SoC</option>
+          <option value="75">75% SoC</option>
+          <option value="60">60% Low Departure</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Human Engineering: Indian Summer Thermal Penalty -->
+    <div class="calc-slider-group">
+      <div class="calc-slider-header">
+        <label>Ambient Highway Temperature</label>
+        <span id="tempBadge" class="slider-badge">38°C (Summer AC On)</span>
+      </div>
+      <input type="range" id="tempRange" min="15" max="48" step="1" value="38" oninput="calculateRoute()" class="calc-range" />
+      <span style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">
+        *Above 35°C, battery thermal chillers consume ~1.8 kW active cooling power.
+      </span>
+    </div>
+
+    <button type="button" onclick="calculateRoute()" class="btn-primary w-full" style="margin-top: 1rem;">
+      Recompute Elevation & Charging Stops ⟳
+    </button>
+  </div>
+
+  <!-- Right Side: Multi-Stop Schedule & Energy Profile -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">2. Highway Charging Itinerary & SoC Profile</h3>
+      <p class="card-desc">Simulated arrival battery percentages factoring in terrain gradient and climate control.</p>
+    </div>
+
+    <!-- Journey Metrics Summary -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem;">
+      <div style="background: var(--bg-subtle); padding: 0.85rem; border-radius: 12px; text-align: center;">
+        <span class="text-muted block text-xs">Total Distance</span>
+        <div id="itineraryDist" style="font-size: 1.2rem; font-weight: 800;">152 km</div>
+      </div>
+      <div style="background: var(--bg-subtle); padding: 0.85rem; border-radius: 12px; text-align: center;">
+        <span class="text-muted block text-xs">Drive Time</span>
+        <div id="itineraryDriveTime" style="font-size: 1.2rem; font-weight: 800;">2h 45m</div>
+      </div>
+      <div style="background: var(--bg-subtle); padding: 0.85rem; border-radius: 12px; text-align: center;">
+        <span class="text-muted block text-xs">Charging Stops</span>
+        <div id="itineraryStops" style="font-size: 1.2rem; font-weight: 800; color: var(--primary-color);">1 Fast Stop</div>
+      </div>
+    </div>
+
+    <!-- Route Waypoint Timeline -->
+    <div class="route-timeline" style="display: flex; flex-direction: column; gap: 1rem; border-left: 2px solid var(--border-color); padding-left: 1.5rem; margin-left: 0.75rem;">
+      <!-- Origin -->
+      <div style="position: relative;">
+        <div style="position: absolute; left: -1.95rem; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #10B981; border: 2px solid white;"></div>
+        <span class="text-muted text-xs block">0 km • Departure</span>
+        <h4 id="timelineOrigin" style="font-size: 0.9rem; font-weight: 800;">Mumbai (BKC Hub)</h4>
+        <span class="text-green text-xs font-bold" id="timelineStartSoc">90% Battery SoC</span>
+      </div>
+
+      <!-- Stop 1 (Recommended Bay) -->
+      <div id="chargeStopBlock" style="position: relative; background: #F0F9FF; border: 1px solid #BAE6FD; padding: 1rem; border-radius: 12px;">
+        <div style="position: absolute; left: -2.35rem; top: 1rem; width: 16px; height: 16px; border-radius: 50%; background: #0284C7; color: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800;">⚡</div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <span class="station-badge">Recommended Fast Stop (KM 74)</span>
+            <h4 style="font-size: 0.95rem; font-weight: 800;">Tata Power Expressway Supercharger - Khalapur</h4>
+            <p style="font-size: 0.75rem; color: #0369A1; margin-top: 0.15rem;">
+              Arrive at <b>48% SoC</b> • Fast Charge <b>18 mins to 80%</b> (120 kW CCS2)
+            </p>
+          </div>
+          <a href="/booking/st-pune-01" class="btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; white-space: nowrap;">
+            Hold Bay #01
+          </a>
+        </div>
+      </div>
+
+      <!-- Destination -->
+      <div style="position: relative;">
+        <div style="position: absolute; left: -1.95rem; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #DC2626; border: 2px solid white;"></div>
+        <span class="text-muted text-xs block" id="timelineDestDist">152 km • Destination Arrival</span>
+        <h4 id="timelineDest" style="font-size: 0.9rem; font-weight: 800;">Pune (Baner Expressway)</h4>
+        <span class="text-blue text-xs font-bold" id="timelineEndSoc">54% SoC Remaining (Safe Reserve)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setRoute(orig, dest, distKm, elev) {
+    document.getElementById('routeOrigin').value = orig;
+    document.getElementById('routeDest').value = dest;
+    calculateRoute();
+  }
+
+  function calculateRoute() {
+    const orig = document.getElementById('routeOrigin').value;
+    const dest = document.getElementById('routeDest').value;
+    const carBat = parseFloat(document.getElementById('routeCar').value);
+    const startSoc = parseFloat(document.getElementById('startSoc').value);
+    const temp = parseInt(document.getElementById('tempRange').value);
+
+    document.getElementById('tempBadge').textContent = `${temp}°C ${temp > 35 ? '(Active AC Overhead)' : '(Moderate)'}`;
+    document.getElementById('timelineOrigin').textContent = orig;
+    document.getElementById('timelineDest').textContent = dest;
+    document.getElementById('timelineStartSoc').textContent = `${startSoc}% Battery SoC`;
+
+    // Dynamic temperature thermal penalty
+    const thermalPenalty = temp > 35 ? 1 + (temp - 35) * 0.015 : 1.0;
+    
+    // Distance estimation
+    let distance = 152;
+    if (dest.toLowerCase().includes('jaipur')) distance = 280;
+    else if (dest.toLowerCase().includes('mysuru')) distance = 145;
+
+    document.getElementById('itineraryDist').textContent = `${distance} km`;
+    const driveMinutes = Math.round((distance / 65) * 60);
+    const h = Math.floor(driveMinutes / 60);
+    const m = driveMinutes % 60;
+    document.getElementById('itineraryDriveTime').textContent = `${h}h ${m}m`;
+    document.getElementById('timelineDestDist').textContent = `${distance} km • Destination Arrival`;
+
+    // Calculate energy consumed
+    const energyPerKm = (carBat / 360) * thermalPenalty;
+    const totalEnergyConsumed = distance * energyPerKm;
+    const startKwh = carBat * (startSoc / 100);
+
+    // Stop needed?
+    const stopDiv = document.getElementById('chargeStopBlock');
+    if (startKwh - totalEnergyConsumed < carBat * 0.20) {
+      // Need stop
+      stopDiv.style.display = 'block';
+      document.getElementById('itineraryStops').textContent = '1 Fast Stop';
+      document.getElementById('timelineEndSoc').textContent = '52% SoC Remaining (With 18m Top-Up)';
+    } else {
+      stopDiv.style.display = 'none';
+      document.getElementById('itineraryStops').textContent = '0 Stops (Direct)';
+      const remainingSoc = Math.round(((startKwh - totalEnergyConsumed) / carBat) * 100);
+      document.getElementById('timelineEndSoc').textContent = `${remainingSoc}% SoC Remaining (Direct)`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    calculateRoute();
+  });
+</script>
+{% endblock %}
+

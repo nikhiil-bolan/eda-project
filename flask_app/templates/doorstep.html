@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Roadside Mobile Rescue Van ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Driver Services</span> / <span>Roadside Mobile Rescue</span>
+  </div>
+  <h1 class="page-title">On-Demand Roadside Mobile DC Fast Charging Van</h1>
+  <p class="page-subtitle">
+    Stranded on low battery? Dispatch a dedicated battery van equipped with a 50kW CCS2 DC fast charger to your exact coordinates.
+  </p>
+</div>
+
+<div class="doorstep-layout" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <!-- Dispatch Form -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">Dispatch Rescue Van to My Location</h3>
+      <p class="card-desc">Our emergency mobile fleet operates 24/7 across major metropolitan expressways.</p>
+    </div>
+
+    <form onsubmit="handleDispatch(event)" class="dispatch-form">
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label">Pickup Location (Address / Landmark)</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input
+            type="text"
+            id="dispatchAddress"
+            placeholder="e.g. Bandra-Worli Sea Link Toll Plaza, Mumbai"
+            class="form-input"
+            required
+            value="Western Express Highway Near Domestic Airport, Mumbai"
+          />
+          <button type="button" onclick="detectLiveGPS()" class="btn-secondary" style="white-space: nowrap;">
+            📍 Use Live GPS
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label class="form-label">Vehicle Registration Number</label>
+          <input type="text" placeholder="MH 02 EE 4920" class="form-input" required value="MH 01 EQ 2026" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Current Battery SoC</label>
+          <select class="form-select">
+            <option value="critical">Under 5% (Critical / Vehicle Stopped)</option>
+            <option value="low" selected>5% - 15% (Low Range Warning)</option>
+            <option value="medium">15% - 25% (Preventive Top-Up)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label">Driver Contact Number</label>
+        <input type="tel" placeholder="+91 98765 43210" class="form-input" required value="+91 98200 12345" />
+      </div>
+
+      <!-- Pricing & Service Terms -->
+      <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+          <span class="text-muted">Emergency Dispatch Fee</span>
+          <span class="font-bold">₹499.00</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+          <span class="text-muted">Includes Top-Up Energy</span>
+          <span class="font-bold text-green">15 kWh (~100 km Range)</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.5rem;">
+          <span>Total Emergency Service Fee</span>
+          <span class="text-blue">₹499.00</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary w-full" style="height: 48px; font-size: 0.9rem; font-weight: 800; background: #DC2626; border-color: #DC2626;">
+        🚨 Confirm Emergency Van Dispatch
+      </button>
+    </form>
+  </div>
+
+  <!-- Live Status & Van Tracking Simulation -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">Live Dispatch Status</h3>
+      <p class="card-desc">Real-time status of your nearest mobile rescue unit.</p>
+    </div>
+
+    <div id="dispatchStatusBox" style="text-align: center; padding: 2rem 1rem;">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: #F0F9FF; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
+        🚐
+      </div>
+      <h3 id="vanStatusTitle" style="font-size: 1.1rem; font-weight: 800;">Van Ready for Dispatch</h3>
+      <p id="vanStatusDesc" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Mobile Fast Charging Unit #04 is stationed at BKC Corridor (~18 mins estimated response time).
+      </p>
+
+      <div style="background: var(--bg-subtle); padding: 1rem; border-radius: 12px; margin-top: 1.5rem; text-align: left;">
+        <span class="text-muted block text-xs">Emergency Helpline (24x7)</span>
+        <div style="font-size: 1.15rem; font-weight: 800; color: #DC2626; margin-top: 0.15rem;">
+          📞 1800-202-3847 (Toll Free)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function handleDispatch(e) {
+    e.preventDefault();
+    const title = document.getElementById('vanStatusTitle');
+    const desc = document.getElementById('vanStatusDesc');
+    title.textContent = '🚨 Rescue Van Dispatched!';
+    title.style.color = '#10B981';
+    desc.textContent = 'Mobile Fast Charging Van #04 has been dispatched. Estimated arrival time: 14 minutes. Driver contact: +91 98201 55432.';
+    showNotification('Emergency Rescue Van Dispatched! Live tracking active.', 'success');
+  }
+</script>
+{% endblock %}
+

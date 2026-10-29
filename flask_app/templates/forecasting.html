@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Demand Projections (2030) ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Planning & Growth</span> / <span>Demand Projections</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">Predictive Demand & Station Sizing Projections (2026 - 2030)</h1>
+      <p class="page-subtitle">
+        Longitudinal log-linear and polynomial growth modeling projecting required charging points to meet PM E-DRIVE targets.
+      </p>
+    </div>
+    <div>
+      <a href="/bi-dashboard" class="btn-outline">
+        <span>📈 Return to Executive BI Studio</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Projection Summary Cards -->
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-title-sm">Target National Fleet (2028)</div>
+    <div class="card-value-lg">7.48M EVs</div>
+    <div class="card-subtext text-green">▲ 34.2% Annual Compounding Velocity</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Required Public Chargers (2028)</div>
+    <div class="card-value-lg">299,200 Ports</div>
+    <div class="card-subtext text-blue">Benchmark Ratio target: 25:1</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Current Operational Shortage</div>
+    <div class="card-value-lg text-rose">273,333 Ports</div>
+    <div class="card-subtext text-rose">Capacity expansion deficit across states</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Estimated Capital Expenditure</div>
+    <div class="card-value-lg">₹14,960 Cr</div>
+    <div class="card-subtext text-amber">Public-Private Partnership (PPP) Scope</div>
+  </div>
+</div>
+
+<!-- State Projections Table -->
+<div class="card">
+  <div class="card-header-clean">
+    <h3 class="card-title">State Capacity Requirements & Required Commissioning (2028 Projections)</h3>
+    <p class="card-desc">Calculated via regression forecasting modeling VAHAN adoption curves per state.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="enterprise-table">
+      <thead>
+        <tr>
+          <th>State / Region</th>
+          <th>Current EVs (2025)</th>
+          <th>Forecasted EVs (2028)</th>
+          <th>Active Stations</th>
+          <th>Required Stations (2028)</th>
+          <th>Commissioning Shortage</th>
+          <th>Priority Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in forecasts %}
+        <tr>
+          <td class="font-bold">{{ f.state }}</td>
+          <td>{{ "{:,}".format(f.current_evs) }}</td>
+          <td class="font-bold text-blue">{{ "{:,}".format(f.forecast_evs) }}</td>
+          <td>{{ "{:,}".format(f.current_stations) }}</td>
+          <td class="font-bold">{{ "{:,}".format(f.req_stations) }}</td>
+          <td class="font-bold text-rose">+{{ "{:,}".format(f.shortage) }}</td>
+          <td>
+            <span class="tier-badge {% if f.shortage > 10000 %}tier-critical{% elif f.shortage > 4000 %}tier-high{% else %}tier-moderate{% endif %}">
+              {% if f.shortage > 10000 %}Urgent Fast-Track{% elif f.shortage > 4000 %}High Priority{% else %}Standard Phased{% endif %}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Find EV Charging Stations ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Charging Network</span> / <span>Find Stations</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">Verified EV Charging Hubs</h1>
+      <p class="page-subtitle">
+        Real-time telemetry, bay availability, and fast booking across high-speed metropolitan corridors.
+      </p>
+    </div>
+    <div>
+      <a href="/map" class="btn-outline">
+        <span>🗺️ Switch to Spatial Map View</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Search & City Filter Bar -->
+<div class="card" style="margin-bottom: 2rem;">
+  <form method="GET" action="/stations" class="search-filter-form">
+    <div style="flex: 2;">
+      <label class="form-label">Search Station or Operator</label>
+      <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="e.g. Tata Power BKC, Statiq Lower Parel, Zeon..."
+        class="form-input"
+      />
+    </div>
+
+    <div style="flex: 1;">
+      <label class="form-label">City Corridor</label>
+      <select name="city" class="form-select" onchange="this.form.submit()">
+        <option value="All" {% if selected_city == 'All' %}selected{% endif %}>All Cities (National)</option>
+        <option value="Mumbai" {% if selected_city == 'Mumbai' %}selected{% endif %}>Mumbai, MH</option>
+        <option value="New Delhi" {% if selected_city == 'New Delhi' %}selected{% endif %}>New Delhi, DL</option>
+        <option value="Bengaluru" {% if selected_city == 'Bengaluru' %}selected{% endif %}>Bengaluru, KA</option>
+        <option value="Pune" {% if selected_city == 'Pune' %}selected{% endif %}>Pune, MH</option>
+        <option value="Hyderabad" {% if selected_city == 'Hyderabad' %}selected{% endif %}>Hyderabad, TS</option>
+        <option value="Chennai" {% if selected_city == 'Chennai' %}selected{% endif %}>Chennai, TN</option>
+        <option value="Lucknow" {% if selected_city == 'Lucknow' %}selected{% endif %}>Lucknow, UP</option>
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: flex-end;">
+      <button type="submit" class="btn-primary" style="height: 42px;">Search Hubs</button>
+    </div>
+  </form>
+</div>
+
+<!-- Active Stations Grid -->
+<div class="stations-grid">
+  {% for st in stations %}
+  <div class="station-card">
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <span class="station-badge">{{ st.operator }}</span>
+        <span class="status-pill status-active">● Active</span>
+      </div>
+      <h3 class="station-name">{{ st.name }}</h3>
+      <p class="station-address">📍 {{ st.address }}</p>
+
+      <div class="amenities-tag">
+        Amenities: {{ st.amenities }}
+      </div>
+
+      <div class="station-meta">
+        <div>
+          <span class="text-muted block text-xs">Connector</span>
+          <span class="font-bold">{{ st.connectorType }} ({{ st.powerKW }} kW)</span>
+        </div>
+        <div class="text-right">
+          <span class="text-muted block text-xs">Live Bays</span>
+          <span class="font-bold text-green">{{ st.availableConnectors }} / {{ st.totalConnectors }} Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="station-footer">
+      <div>
+        <span class="text-muted block text-xs">Official BEE Tariff</span>
+        <div class="tariff-tag">₹{{ st.pricePerKWh }}/kWh</div>
+      </div>
+      <a href="/booking/{{ st.id }}" class="btn-book">Reserve Bay →</a>
+    </div>
+  </div>
+  {% else %}
+  <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+    <p style="font-size: 1.1rem; font-weight: 700; color: var(--text-muted);">No charging stations found matching your search.</p>
+    <a href="/stations" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Clear Filters</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+

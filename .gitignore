@@ -1,0 +1,38 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# Dependencies and virtual environments
+node_modules/
+.venv/
+venv/
+env/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Generated and local files
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# Large model artifacts (review before tracking)
+# Uncomment only if these files are generated or stored elsewhere
+# *.pkl
+# *.joblib
+# *.h5
+# *.keras

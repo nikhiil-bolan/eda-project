@@ -1,0 +1,33 @@
+State,Population_Million,Area_Sq_Km,Urbanization_Percentage,GDP_Tier
+Uttar Pradesh,238.2,240928,22.3,Medium
+Maharashtra,126.4,307713,45.2,High
+Karnataka,67.8,191791,38.7,High
+Tamil Nadu,76.9,130058,48.4,High
+Delhi,20.3,1484,97.5,High
+Gujarat,63.8,196024,42.6,High
+Rajasthan,81.2,342239,24.9,Medium
+West Bengal,99.1,88752,31.9,Medium
+Andhra Pradesh,53.2,162970,29.6,Medium
+Madhya Pradesh,85.4,308252,27.6,Low
+Bihar,127.3,94163,11.3,Low
+Kerala,35.8,38863,47.7,High
+Punjab,30.2,50362,37.5,High
+Haryana,28.9,44212,34.8,High
+Telangana,38.5,112077,38.9,High
+Odisha,46.3,155707,16.7,Low
+Assam,35.6,78438,14.1,Low
+Chhattisgarh,30.1,135191,23.2,Low
+Jharkhand,38.8,79714,24.0,Low
+Uttarakhand,11.4,53483,30.2,Medium
+Himachal Pradesh,7.5,55673,10.0,Medium
+Goa,1.6,3702,62.2,High
+Chandigarh,1.2,114,97.2,High
+Puducherry,1.4,479,68.3,Medium
+Jammu and Kashmir,13.6,42241,27.4,Low
+Tripura,4.1,10491,26.2,Low
+Meghalaya,3.3,22429,20.1,Low
+Manipur,3.1,22327,29.2,Low
+Nagaland,2.2,16579,29.0,Low
+Arunachal Pradesh,1.6,83743,22.9,Low
+Mizoram,1.2,21081,52.1,Low
+Sikkim,0.7,7096,25.2,Medium

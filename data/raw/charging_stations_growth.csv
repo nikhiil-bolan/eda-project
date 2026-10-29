@@ -1,0 +1,193 @@
+State,Year,Public_Charging_Stations,Slow_Chargers,Fast_Chargers
+Karnataka,2020,329,251,78
+Karnataka,2021,707,519,188
+Karnataka,2022,1784,1408,376
+Karnataka,2023,3283,2554,729
+Karnataka,2024,4701,3330,1371
+Karnataka,2025,5683,4488,1195
+Maharashtra,2020,212,148,64
+Maharashtra,2021,460,352,108
+Maharashtra,2022,1051,752,299
+Maharashtra,2023,2103,1617,486
+Maharashtra,2024,3219,2325,894
+Maharashtra,2025,4342,3142,1200
+Uttar Pradesh,2020,112,86,26
+Uttar Pradesh,2021,287,225,62
+Uttar Pradesh,2022,671,507,164
+Uttar Pradesh,2023,1068,786,282
+Uttar Pradesh,2024,1662,1203,459
+Uttar Pradesh,2025,2546,1882,664
+Delhi,2020,105,80,25
+Delhi,2021,248,186,62
+Delhi,2022,556,416,140
+Delhi,2023,918,708,210
+Delhi,2024,1403,985,418
+Delhi,2025,2013,1444,569
+Tamil Nadu,2020,96,76,20
+Tamil Nadu,2021,231,170,61
+Tamil Nadu,2022,450,356,94
+Tamil Nadu,2023,877,698,179
+Tamil Nadu,2024,1458,1144,314
+Tamil Nadu,2025,1706,1259,447
+Gujarat,2020,77,56,21
+Gujarat,2021,162,122,40
+Gujarat,2022,441,339,102
+Gujarat,2023,735,521,214
+Gujarat,2024,1112,888,224
+Gujarat,2025,1345,1011,334
+Rajasthan,2020,60,46,14
+Rajasthan,2021,139,107,32
+Rajasthan,2022,304,221,83
+Rajasthan,2023,594,463,131
+Rajasthan,2024,901,712,189
+Rajasthan,2025,1122,841,281
+Kerala,2020,51,39,12
+Kerala,2021,122,95,27
+Kerala,2022,295,216,79
+Kerala,2023,477,338,139
+Kerala,2024,746,524,222
+Kerala,2025,973,733,240
+West Bengal,2020,40,30,10
+West Bengal,2021,92,64,28
+West Bengal,2022,253,186,67
+West Bengal,2023,393,295,98
+West Bengal,2024,671,484,187
+West Bengal,2025,870,616,254
+Telangana,2020,54,40,14
+Telangana,2021,145,110,35
+Telangana,2022,351,279,72
+Telangana,2023,601,440,161
+Telangana,2024,953,692,261
+Telangana,2025,1185,838,347
+Andhra Pradesh,2020,33,26,7
+Andhra Pradesh,2021,94,72,22
+Andhra Pradesh,2022,203,145,58
+Andhra Pradesh,2023,344,249,95
+Andhra Pradesh,2024,560,432,128
+Andhra Pradesh,2025,763,555,208
+Madhya Pradesh,2020,33,25,8
+Madhya Pradesh,2021,75,57,18
+Madhya Pradesh,2022,170,123,47
+Madhya Pradesh,2023,301,233,68
+Madhya Pradesh,2024,419,298,121
+Madhya Pradesh,2025,563,396,167
+Haryana,2020,31,23,8
+Haryana,2021,69,48,21
+Haryana,2022,162,121,41
+Haryana,2023,271,201,70
+Haryana,2024,426,324,102
+Haryana,2025,595,419,176
+Punjab,2020,23,17,6
+Punjab,2021,58,45,13
+Punjab,2022,141,100,41
+Punjab,2023,223,170,53
+Punjab,2024,332,251,81
+Punjab,2025,533,403,130
+Bihar,2020,15,11,4
+Bihar,2021,38,28,10
+Bihar,2022,97,71,26
+Bihar,2023,174,137,37
+Bihar,2024,225,159,66
+Bihar,2025,294,206,88
+Odisha,2020,13,9,4
+Odisha,2021,31,22,9
+Odisha,2022,86,60,26
+Odisha,2023,154,112,42
+Odisha,2024,200,153,47
+Odisha,2025,297,233,64
+Assam,2020,7,5,2
+Assam,2021,17,12,5
+Assam,2022,44,34,10
+Assam,2023,82,60,22
+Assam,2024,109,84,25
+Assam,2025,145,114,31
+Chhattisgarh,2020,9,6,3
+Chhattisgarh,2021,22,17,5
+Chhattisgarh,2022,46,36,10
+Chhattisgarh,2023,90,70,20
+Chhattisgarh,2024,130,102,28
+Chhattisgarh,2025,176,123,53
+Jharkhand,2020,7,4,3
+Jharkhand,2021,16,12,4
+Jharkhand,2022,42,31,11
+Jharkhand,2023,71,52,19
+Jharkhand,2024,100,73,27
+Jharkhand,2025,144,111,33
+Uttarakhand,2020,6,4,2
+Uttarakhand,2021,14,10,4
+Uttarakhand,2022,33,24,9
+Uttarakhand,2023,64,50,14
+Uttarakhand,2024,94,66,28
+Uttarakhand,2025,120,93,27
+Himachal Pradesh,2020,4,2,2
+Himachal Pradesh,2021,8,6,2
+Himachal Pradesh,2022,20,15,5
+Himachal Pradesh,2023,41,29,12
+Himachal Pradesh,2024,55,43,12
+Himachal Pradesh,2025,77,56,21
+Goa,2020,5,3,2
+Goa,2021,14,10,4
+Goa,2022,30,21,9
+Goa,2023,58,43,15
+Goa,2024,81,64,17
+Goa,2025,101,75,26
+Chandigarh,2020,4,2,2
+Chandigarh,2021,9,6,3
+Chandigarh,2022,23,17,6
+Chandigarh,2023,47,35,12
+Chandigarh,2024,73,53,20
+Chandigarh,2025,86,67,19
+Puducherry,2020,2,1,1
+Puducherry,2021,4,3,1
+Puducherry,2022,11,8,3
+Puducherry,2023,22,17,5
+Puducherry,2024,30,22,8
+Puducherry,2025,49,36,13
+Jammu and Kashmir,2020,3,2,1
+Jammu and Kashmir,2021,7,5,2
+Jammu and Kashmir,2022,18,14,4
+Jammu and Kashmir,2023,29,21,8
+Jammu and Kashmir,2024,53,41,12
+Jammu and Kashmir,2025,64,48,16
+Tripura,2020,1,0,1
+Tripura,2021,2,1,1
+Tripura,2022,7,4,3
+Tripura,2023,13,10,3
+Tripura,2024,19,14,5
+Tripura,2025,24,18,6
+Meghalaya,2020,1,0,1
+Meghalaya,2021,1,0,1
+Meghalaya,2022,4,3,1
+Meghalaya,2023,7,5,2
+Meghalaya,2024,12,9,3
+Meghalaya,2025,13,9,4
+Manipur,2020,1,0,1
+Manipur,2021,1,0,1
+Manipur,2022,3,2,1
+Manipur,2023,6,4,2
+Manipur,2024,9,6,3
+Manipur,2025,11,8,3
+Nagaland,2020,1,0,1
+Nagaland,2021,1,0,1
+Nagaland,2022,2,1,1
+Nagaland,2023,4,3,1
+Nagaland,2024,6,4,2
+Nagaland,2025,7,4,3
+Arunachal Pradesh,2020,1,0,1
+Arunachal Pradesh,2021,1,0,1
+Arunachal Pradesh,2022,1,0,1
+Arunachal Pradesh,2023,2,1,1
+Arunachal Pradesh,2024,4,3,1
+Arunachal Pradesh,2025,6,4,2
+Mizoram,2020,0,0,0
+Mizoram,2021,0,0,0
+Mizoram,2022,1,0,1
+Mizoram,2023,2,1,1
+Mizoram,2024,3,2,1
+Mizoram,2025,4,2,2
+Sikkim,2020,1,0,1
+Sikkim,2021,1,0,1
+Sikkim,2022,3,2,1
+Sikkim,2023,5,3,2
+Sikkim,2024,7,5,2
+Sikkim,2025,10,7,3

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}EVision ⚡ Enterprise EV Infrastructure & Smart Charging Portal{% endblock %}
+
+{% block content %}
+<!-- Live OCPP 2.0.1 Telemetry Grid Ticker -->
+<div class="telemetry-ticker-bar" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.6rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; overflow-x: auto; box-shadow: var(--shadow-sm); font-size: 0.72rem;">
+  <div style="display: flex; align-items: center; gap: 0.75rem; white-space: nowrap;">
+    <span class="ping-dot"></span>
+    <span style="font-weight: 800; color: var(--primary-color);">LIVE OCPP 2.0.1 GRID TELEMETRY</span>
+    <span style="color: var(--border-color);">|</span>
+    <span>Grid Frequency: <b>49.98 Hz (Stable)</b></span>
+    <span style="color: var(--border-color);">|</span>
+    <span>DISCOM Load: <b>38.4 MVA</b></span>
+    <span style="color: var(--border-color);">|</span>
+    <span>ISO 15118 Handshakes: <b class="text-green">942 Active</b></span>
+  </div>
+  <div style="white-space: nowrap;">
+    <span class="badge-cert">BEE & VAHAN Certified Telemetry</span>
+  </div>
+</div>
+
+<!-- PWA Native Install Prompt Banner -->
+<div id="pwaBanner" class="pwa-install-banner" style="display: flex;">
+  <div>
+    <div class="title">📱 Install EVision Enterprise PWA</div>
+    <div class="desc">Add to Home Screen or Desktop for offline charging maps, instant QR passes, and zero latency.</div>
+  </div>
+  <button id="pwaInstallBtn" onclick="installPWA()" class="btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.75rem; white-space: nowrap;">
+    Install App +
+  </button>
+</div>
+
+<!-- Hero Welcome Section with Human-Crafted Elevation -->
+<div class="hero-banner">
+  <div class="hero-content">
+    <div class="badge-status">
+      <span class="ping-dot"></span>
+      <span>National Grid Dispatch Telemetry Active</span>
+    </div>
+    <h1 class="hero-title">National EV Charging & Infrastructure Analytics</h1>
+    <p class="hero-subtitle">
+      Real-time charging bay telemetry, regional infrastructure deficit analytics, and verified slot reservations across India's metropolitan corridors.
+    </p>
+    <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap;">
+      <a href="/trip-planner" class="btn-primary" style="text-decoration: none;">
+        🗺️ Highway Route Planner (ABRP) →
+      </a>
+      <a href="/bi-dashboard" class="btn-secondary" style="text-decoration: none;">
+        📊 Executive BI Studio
+      </a>
+      <a href="/fleet" class="btn-outline" style="text-decoration: none;">
+        🌱 B2B Fleet & Carbon Credits
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-location-card">
+    <div class="location-card-icon">📍</div>
+    <div class="location-card-info">
+      <span class="sub-label">Calibrated GPS Hub</span>
+      <h3 id="heroLocationLabel" class="loc-name">Mumbai, Maharashtra</h3>
+      <button onclick="detectLiveGPS()" class="btn-recalibrate">Recalibrate Live GPS ⟳</button>
+    </div>
+  </div>
+</div>
+
+<!-- Executive KPI Summary Cards -->
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-title-sm">National Active EVs</div>
+    <div class="card-value-lg">{{ "{:,}".format(total_evs) }}</div>
+    <div class="card-subtext text-green">▲ +42.8% YoY Fleet Adoption Velocity</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Public Charging Points</div>
+    <div class="card-value-lg">{{ "{:,}".format(total_chargers) }}</div>
+    <div class="card-subtext text-blue">▲ +18.4% YoY BEE Verified Growth</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">EV-to-Charger Ratio</div>
+    <div class="card-value-lg">{{ ratio }}:1</div>
+    <div class="card-subtext text-amber">High Density Pressure (Ideal: 20:1)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Critical Deficit States</div>
+    <div class="card-value-lg">{{ crit_count }} States</div>
+    <div class="card-subtext text-rose">Infrastructure Gap Score ≥ 75</div>
+  </div>
+</div>
+
+<!-- Enterprise 8-Module Command Launchpad -->
+<div class="section-heading">
+  <h2>Enterprise Command Launchpad</h2>
+  <p>Select a specialized module for charging reservations, predictive models, or statistical exploration.</p>
+</div>
+
+<div class="launchpad-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+  <a href="/stations" class="launchpad-card">
+    <div class="launchpad-icon">🔍</div>
+    <div class="launchpad-title">Find Stations</div>
+    <div class="launchpad-desc">Filter by connector & city</div>
+  </a>
+
+  <a href="/map" class="launchpad-card">
+    <div class="launchpad-icon">🗺️</div>
+    <div class="launchpad-title">Station Map</div>
+    <div class="launchpad-desc">Leaflet MarkerCluster view</div>
+  </a>
+
+  <a href="/trip-planner" class="launchpad-card" style="border-color: #BAE6FD; background: #F0F9FF;">
+    <div class="launchpad-icon" style="color: #0284C7;">🛣️</div>
+    <div class="launchpad-title" style="color: #0284C7;">Highway Route Planner</div>
+    <div class="launchpad-desc">Multi-stop elevation simulation</div>
+  </a>
+
+  <a href="/bi-dashboard" class="launchpad-card">
+    <div class="launchpad-icon">📈</div>
+    <div class="launchpad-title">Executive BI Studio</div>
+    <div class="launchpad-desc">Tableau & Plotly visual matrix</div>
+  </a>
+
+  <a href="/eda" class="launchpad-card">
+    <div class="launchpad-icon">🔬</div>
+    <div class="launchpad-title">Data Insights & Trends</div>
+    <div class="launchpad-desc">Adoption & category breakdown</div>
+  </a>
+
+  <a href="/gap-analysis" class="launchpad-card">
+    <div class="launchpad-icon">⚡</div>
+    <div class="launchpad-title">Regional Gap Index</div>
+    <div class="launchpad-desc">State deficit ranking (0-100)</div>
+  </a>
+
+  <a href="/fleet" class="launchpad-card" style="border-color: #BBF7D0; background: #F0FDF4;">
+    <div class="launchpad-icon" style="color: #16A34A;">🌱</div>
+    <div class="launchpad-title" style="color: #166534;">B2B Fleet & Carbon</div>
+    <div class="launchpad-desc">ToD DISCOM optimization</div>
+  </a>
+
+  <a href="/calculator" class="launchpad-card">
+    <div class="launchpad-icon">🔋</div>
+    <div class="launchpad-title">3D Battery Calculator</div>
+    <div class="launchpad-desc">Three.js & CC-CV tapering curve</div>
+  </a>
+</div>
+
+<!-- Real-Time Nearest Charging Hubs -->
+<div class="section-heading-split">
+  <div>
+    <h2>Active Charging Stations Near You</h2>
+    <p>High-speed DC fast chargers and AC standard bays with live telemetry.</p>
+  </div>
+  <a href="/stations" class="link-view-all">View All 12 Hubs →</a>
+</div>
+
+<div class="stations-grid">
+  {% for st in stations %}
+  <div class="station-card">
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <span class="station-badge">{{ st.operator }}</span>
+        <span class="status-pill status-active">● OCPP 2.0.1 Live</span>
+      </div>
+      <h3 class="station-name">{{ st.name }}</h3>
+      <p class="station-address">{{ st.address }}</p>
+
+      <div class="station-meta">
+        <div>
+          <span class="text-muted block text-xs">Connector</span>
+          <span class="font-bold">{{ st.connectorType }} ({{ st.powerKW }} kW)</span>
+        </div>
+        <div class="text-right">
+          <span class="text-muted block text-xs">Live Status</span>
+          <span class="font-bold text-green">{{ st.availableConnectors }} / {{ st.totalConnectors }} Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="station-footer">
+      <div>
+        <span class="text-muted block text-xs">Official BEE Tariff</span>
+        <div class="tariff-tag">₹{{ st.pricePerKWh }}/kWh</div>
+      </div>
+      <a href="/booking/{{ st.id }}" class="btn-book">Reserve Bay →</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('pwaBanner');
+    if (banner) banner.style.display = 'flex';
+  });
+
+  function installPWA() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          showNotification('EVision Enterprise installed successfully!', 'success');
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      showNotification('App can be installed directly from browser menu (Install EVision).', 'info');
+    }
+  }
+</script>
+{% endblock %}

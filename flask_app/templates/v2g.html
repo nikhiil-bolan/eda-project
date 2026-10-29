@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Virtual Power Plant (VPP) & V2G Power Export ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Enterprise Clean Energy</span> / <span>Vehicle-to-Grid (V2G) & Virtual Power Plant</span>
+  </div>
+  <div class="header-split">
+    <div>
+      <h1 class="page-title">Virtual Power Plant (VPP) & Bidirectional V2G Energy Trading</h1>
+      <p class="page-subtitle">
+        Turn your parked electric vehicle into an active revenue-generating asset by discharging battery power back to the DISCOM grid during peak evening demand surges.
+      </p>
+    </div>
+    <span class="badge-cert">● Bi-Directional ISO 15118-20 Compliant</span>
+  </div>
+</div>
+
+<!-- Live Grid Frequency & Demand Surge Ticker -->
+<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent-amber); background: var(--bg-surface);">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="text-muted block text-xs uppercase font-bold">National Grid Frequency (Live RLDC Telemetry)</span>
+      <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+        <span id="gridFreqVal" style="font-size: 1.85rem; font-weight: 800; color: #D97706; font-family: monospace;">49.91 Hz</span>
+        <span class="text-rose text-xs font-bold">▼ Below Nominal 50.00 Hz (High Grid Deficit)</span>
+      </div>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+        DISCOM power deficit trigger active. Premium feed-in feed tariff offered to EV battery exporters.
+      </p>
+    </div>
+    <div style="background: #FEF3C7; border: 1px solid #FDE68A; padding: 0.85rem 1.25rem; border-radius: 12px; text-align: right;">
+      <span style="font-size: 0.7rem; font-weight: 800; color: #92400E; text-transform: uppercase;">Peak Export Feed-in Tariff</span>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #B45309;">₹22.50 / kWh</div>
+      <span style="font-size: 0.65rem; color: #92400E;">Paid directly to your linked UPI Account</span>
+    </div>
+  </div>
+</div>
+
+<div class="v2g-layout" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <!-- Export Control Desk -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">1. Bidirectional Battery Discharge Settings</h3>
+      <p class="card-desc">Select how much surplus energy to feed back into the national power grid.</p>
+    </div>
+
+    <!-- Connected Vehicle Selector -->
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label">Connected Bidirectional Vehicle</label>
+      <select id="v2gCar" class="form-select" onchange="calculateV2GEarnings()">
+        <option value="60.5" selected>BYD Atto 3 (60.5 kWh LFP Blade • V2G Enabled)</option>
+        <option value="50.3">MG ZS EV Excite (50.3 kWh • V2G CCS2 Combo)</option>
+        <option value="40.5">Tata Nexon EV Max (40.5 kWh • Bi-Directional Ready)</option>
+      </select>
+    </div>
+
+    <!-- Battery SoC Buffer Protection -->
+    <div class="calc-slider-group">
+      <div class="calc-slider-header">
+        <label>Reserve Minimum Battery Buffer (For Your Personal Driving)</label>
+        <span id="bufferSocVal" class="slider-badge">50% Minimum Reserve</span>
+      </div>
+      <input type="range" id="bufferSoc" min="30" max="80" step="5" value="50" oninput="calculateV2GEarnings()" class="calc-range" />
+      <span style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">
+        *Your vehicle will never discharge below this percentage to guarantee your commute range.
+      </span>
+    </div>
+
+    <!-- Energy Export Slider -->
+    <div class="calc-slider-group">
+      <div class="calc-slider-header">
+        <label>Surplus Energy to Export to Grid</label>
+        <span id="exportKwhVal" class="slider-badge">12.0 kWh</span>
+      </div>
+      <input type="range" id="exportKwh" min="3" max="25" step="0.5" value="12" oninput="calculateV2GEarnings()" class="calc-range" />
+    </div>
+
+    <!-- Discharge Duration & Inverter Setting -->
+    <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+        <span class="text-muted">Discharge Rate</span>
+        <span class="font-bold">11.0 kW AC Bidirectional Inverter</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+        <span class="text-muted">Estimated Discharge Time</span>
+        <span id="dischargeTime" class="font-bold text-blue">1 hr 05 mins</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+        <span class="text-muted">DISCOM Recipient</span>
+        <span class="font-bold">MSEDCL Mumbai Urban Substation #14</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.5rem;">
+        <span>Driver Payout Revenue</span>
+        <span id="driverEarnings" class="text-green">₹270.00</span>
+      </div>
+    </div>
+
+    <button type="button" onclick="startV2GDischarge()" id="btnStartV2G" class="btn-primary w-full" style="height: 48px; font-size: 0.9rem; font-weight: 800; background: #059669; border-color: #059669;">
+      ⚡ Authorize Bidirectional Grid Export (Earn ₹270.00)
+    </button>
+  </div>
+
+  <!-- Live Inverter Telemetry & Revenue Wallet -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">Live Inverter & Earnings Wallet</h3>
+      <p class="card-desc">Real-time status of current reverse energy flows and accumulated DISCOM credits.</p>
+    </div>
+
+    <!-- Animated Status Circle -->
+    <div id="v2gStatusBox" style="background: var(--bg-subtle); border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 1.5rem;">
+      <div id="v2gIconGlow" style="width: 72px; height: 72px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; margin: 0 auto 1rem; box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);">
+        🔄
+      </div>
+      <h3 id="v2gStatusTitle" style="font-size: 1.1rem; font-weight: 800;">Bidirectional Inverter Standby</h3>
+      <p id="v2gStatusDesc" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Connected to 11kW smart wallbox charger. Ready to inject power into the regional DISCOM feeder.
+      </p>
+    </div>
+
+    <!-- Lifetime VPP Revenue Wallet -->
+    <div style="border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem;">
+      <span class="text-muted block text-xs uppercase font-bold">Your Clean Energy Wallet Balance</span>
+      <div style="font-size: 1.85rem; font-weight: 800; color: var(--primary-color); margin: 0.25rem 0;">
+        ₹4,890.50
+      </div>
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Accumulated from 18 peak evening grid discharge sessions. Auto-withdraws to UPI on the 1st of every month.
+      </p>
+      <button onclick="showNotification('Instant withdrawal of ₹4,890.50 initiated to UPI ID driver@okhdfcbank.', 'success')" class="btn-outline w-full" style="font-size: 0.75rem;">
+        💸 Instant UPI Withdrawal
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calculateV2GEarnings() {
+    const kwh = parseFloat(document.getElementById('exportKwh').value);
+    const buffer = parseInt(document.getElementById('bufferSoc').value);
+    document.getElementById('exportKwhVal').textContent = `${kwh.toFixed(1)} kWh`;
+    document.getElementById('bufferSocVal').textContent = `${buffer}% Minimum Reserve`;
+
+    const tariff = 22.50; // ₹22.50 peak feed-in tariff
+    const total = (kwh * tariff).toFixed(2);
+    document.getElementById('driverEarnings').textContent = `₹${total}`;
+    document.getElementById('btnStartV2G').textContent = `⚡ Authorize Bidirectional Grid Export (Earn ₹${total})`;
+
+    const minutes = Math.round((kwh / 11.0) * 60);
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    document.getElementById('dischargeTime').textContent = h > 0 ? `${h} hr ${m} mins` : `${m} mins`;
+  }
+
+  let isDischarging = false;
+  function startV2GDischarge() {
+    isDischarging = !isDischarging;
+    const btn = document.getElementById('btnStartV2G');
+    const title = document.getElementById('v2gStatusTitle');
+    const desc = document.getElementById('v2gStatusDesc');
+    const glow = document.getElementById('v2gIconGlow');
+
+    if (isDischarging) {
+      btn.textContent = '⏹️ Terminate Grid Export Session';
+      btn.style.background = '#DC2626';
+      btn.style.borderColor = '#DC2626';
+      title.textContent = '⚡ Reverse Power Injection Active';
+      title.style.color = '#10B981';
+      desc.textContent = 'Injecting 11.0 kW clean power into MSEDCL Substation #14 at 230V / 48A. Live earnings counter running.';
+      glow.style.boxShadow = '0 0 0 12px rgba(16, 185, 129, 0.4)';
+      showNotification('Grid Export Active! Your EV battery is stabilizing the national power grid.', 'success');
+    } else {
+      btn.textContent = '⚡ Authorize Bidirectional Grid Export';
+      btn.style.background = '#059669';
+      btn.style.borderColor = '#059669';
+      title.textContent = 'Bidirectional Inverter Standby';
+      title.style.color = 'inherit';
+      desc.textContent = 'Export session completed successfully. Payout credited to your wallet balance.';
+      glow.style.boxShadow = '0 0 0 8px rgba(16, 185, 129, 0.2)';
+      showNotification('Session concluded. ₹270.00 credited to your EVision Clean Wallet.', 'success');
+    }
+  }
+
+  // Live fluctuating grid frequency simulation
+  setInterval(() => {
+    const freqEl = document.getElementById('gridFreqVal');
+    if (freqEl) {
+      const base = 49.90;
+      const jitter = (Math.random() * 0.08).toFixed(2);
+      freqEl.textContent = `${(base + parseFloat(jitter)).toFixed(2)} Hz`;
+    }
+  }, 2500);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    calculateV2GEarnings();
+  });
+</script>
+{% endblock %}
+

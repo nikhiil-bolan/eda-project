@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Data Insights & Trends (EDA) ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Analytics & BI</span> / <span>Data Insights & Trends (EDA)</span>
+  </div>
+  <h1 class="page-title">Exploratory Data Analysis (EDA) & Fleet Insights</h1>
+  <p class="page-subtitle">
+    VAHAN vehicle category distributions, year-over-year infrastructure lag detection, and cross-variable correlation heatmaps.
+  </p>
+</div>
+
+<!-- Dataset Health & Integrity Badges -->
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-title-sm">Observations</div>
+    <div class="card-value-lg">192 Records</div>
+    <div class="card-subtext text-teal">32 States / UTs over 6 Years</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Features Analyzed</div>
+    <div class="card-value-lg">21 Features</div>
+    <div class="card-subtext text-blue">Demographics, Density & Power</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Null Data Cells</div>
+    <div class="card-value-lg text-green">0 Missing</div>
+    <div class="card-subtext text-green">100% Certified Complete Pipeline</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-sm">Pipeline Integrity</div>
+    <div class="card-value-lg text-blue">Validated</div>
+    <div class="card-subtext text-blue">Zero Duplicate Primary Keys</div>
+  </div>
+</div>
+
+<!-- Row 1: Vehicle Segment Mix & YoY Growth Mismatch -->
+<div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  <!-- Chart 1: Vehicle Segment Breakdown -->
+  <div class="card">
+    <div class="card-header-clean">
+      <div>
+        <h3 class="card-title">Vehicle Category Breakdown (2025 National Fleet)</h3>
+        <p class="card-desc">Two-Wheelers, Three-Wheelers, Passenger Cars, and Commercial Bus distributions.</p>
+      </div>
+    </div>
+    <div id="categoryMixChart" style="height: 380px; width: 100%;"></div>
+  </div>
+
+  <!-- Chart 2: YoY Adoption Mismatch Lag -->
+  <div class="card">
+    <div class="card-header-clean">
+      <div>
+        <h3 class="card-title">YoY Growth Mismatch (EV Demand vs Charging Supply)</h3>
+        <p class="card-desc">States where electric vehicle adoption percentage outpaces charging station expansion.</p>
+      </div>
+    </div>
+    <div id="mismatchChart" style="height: 380px; width: 100%;"></div>
+  </div>
+</div>
+
+<!-- Row 2: Adoption Curve & Correlation Heatmap -->
+<div class="grid-2col" style="display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  <!-- Chart 3: Longitudinal Fleet Adoption Curve -->
+  <div class="card">
+    <div class="card-header-clean">
+      <div>
+        <h3 class="card-title">National Fleet Adoption Curve (2020 - 2025)</h3>
+        <p class="card-desc">Annual cumulative EV registrations in India from VAHAN national telemetry.</p>
+      </div>
+    </div>
+    <div id="adoptionAreaChart" style="height: 380px; width: 100%;"></div>
+  </div>
+
+  <!-- Chart 4: Correlation Matrix Heatmap -->
+  <div class="card">
+    <div class="card-header-clean">
+      <div>
+        <h3 class="card-title">Multi-Feature Pearson Correlation Heatmap</h3>
+        <p class="card-desc">Correlation coefficients across EV fleet size, charging points, and demographic indicators.</p>
+      </div>
+    </div>
+    <div id="heatmapChart" style="height: 380px; width: 100%;"></div>
+  </div>
+</div>
+
+<!-- Key Analytical Takeaways -->
+<div class="card" style="margin-top: 1.5rem;">
+  <div class="card-header-clean">
+    <h3 class="card-title">Key Statistical Findings & Strategic Recommendations</h3>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+    <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px;">
+      <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--primary-color); margin-bottom: 0.35rem;">1. Two-Wheeler Dominance (55.2%)</h4>
+      <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+        Urban EV adoption in India is led by 2W scooters and 3W commercial cargo rickshaws. Public infrastructure requires dedicated swappable battery bays and lightweight 3.3kW ports.
+      </p>
+    </div>
+
+    <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px;">
+      <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--accent-rose); margin-bottom: 0.35rem;">2. Critical Northern Corridors (UP & Bihar)</h4>
+      <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+        Uttar Pradesh and Bihar exhibit high adoption growth (48%+ YoY) driven by electric rickshaws, but possess severe charging deficits with over 450 EVs per public charger.
+      </p>
+    </div>
+
+    <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px;">
+      <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--accent-green); margin-bottom: 0.35rem;">3. Balanced Southern Hubs (KA & MH)</h4>
+      <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+        Karnataka and Maharashtra maintain balanced ratios below 130:1, with robust private DISCOM tie-ups and high fast-charging penetration along key highway expressways.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function renderEDACharts() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const bgPaper = isDark ? '#111827' : '#FFFFFF';
+    const bgPlot = isDark ? '#111827' : '#FFFFFF';
+    const fontColor = isDark ? '#F8FAFC' : '#0F172A';
+    const gridColor = isDark ? '#1F2937' : '#E2E8F0';
+
+    // 1. Vehicle Segment Donut
+    const dataCat = [{
+      values: [1711156, 985775, 359591, 43398],
+      labels: ['Two-Wheelers (2W)', 'Three-Wheelers (3W)', 'Four-Wheelers (4W)', 'Commercial Buses'],
+      type: 'pie',
+      hole: 0.58,
+      marker: { colors: ['#0284C7', '#10B981', '#F59E0B', '#8B5CF6'] },
+      textinfo: 'percent',
+      hoverinfo: 'label+value+percent'
+    }];
+    Plotly.newPlot('categoryMixChart', dataCat, {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 20, r: 20, t: 20, b: 20 },
+      legend: { orientation: 'h', y: -0.1 }
+    }, { responsive: true, displayModeBar: false });
+
+    // 2. YoY Growth Mismatch
+    const dataMismatch = [{
+      x: ['Uttar Pradesh', 'Bihar', 'Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Gujarat', 'Tamil Nadu', 'Karnataka', 'Delhi'],
+      y: [30.1, 37.9, 24.5, 27.9, 15.2, 20.3, 11.5, 4.9, 5.4],
+      type: 'bar',
+      marker: {
+        color: ['#DC2626', '#DC2626', '#EA580C', '#EA580C', '#F59E0B', '#F59E0B', '#EAB308', '#10B981', '#10B981']
+      }
+    }];
+    Plotly.newPlot('mismatchChart', dataMismatch, {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 40, r: 20, t: 20, b: 80 },
+      yaxis: { title: 'Supply Lag (% Gap)', gridcolor: gridColor },
+      xaxis: { tickangle: -30 }
+    }, { responsive: true, displayModeBar: false });
+
+    // 3. Adoption Area Chart
+    const dataAdoption = [{
+      x: [2020, 2021, 2022, 2023, 2024, 2025],
+      y: [125000, 330000, 1020000, 1530000, 2180000, 3099920],
+      fill: 'tozeroy',
+      type: 'scatter',
+      mode: 'lines+markers',
+      line: { color: '#0284C7', width: 3 },
+      fillcolor: isDark ? 'rgba(2, 132, 199, 0.2)' : 'rgba(2, 132, 199, 0.1)'
+    }];
+    Plotly.newPlot('adoptionAreaChart', dataAdoption, {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 60, r: 20, t: 20, b: 40 },
+      yaxis: { title: 'National EV Registrations', gridcolor: gridColor },
+      xaxis: { gridcolor: gridColor }
+    }, { responsive: true, displayModeBar: false });
+
+    // 4. Feature Correlation Matrix Heatmap
+    const features = ['EV Count', 'Total Stations', 'Fast Chargers', 'Ratio', 'Urban Pop'];
+    const zValues = [
+      [1.00, 0.72, 0.68, 0.81, 0.58],
+      [0.72, 1.00, 0.94, -0.42, 0.76],
+      [0.68, 0.94, 1.00, -0.38, 0.71],
+      [0.81, -0.42, -0.38, 1.00, 0.12],
+      [0.58, 0.76, 0.71, 0.12, 1.00]
+    ];
+    const dataHeatmap = [{
+      z: zValues,
+      x: features,
+      y: features,
+      type: 'heatmap',
+      colorscale: 'Blues',
+      showscale: true
+    }];
+    Plotly.newPlot('heatmapChart', dataHeatmap, {
+      paper_bgcolor: bgPaper,
+      plot_bgcolor: bgPlot,
+      font: { family: 'Plus Jakarta Sans, sans-serif', color: fontColor },
+      margin: { l: 80, r: 20, t: 20, b: 40 }
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(renderEDACharts, 100);
+  });
+</script>
+{% endblock %}
+

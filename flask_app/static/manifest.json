@@ -1,0 +1,17 @@
+{
+  "short_name": "EVision",
+  "name": "EVision Enterprise - National Smart EV Charging & Infrastructure Portal",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230284C7'/><path d='M50 15 L25 55 L48 55 L40 85 L75 45 L52 45 Z' fill='white'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0284C7",
+  "display": "standalone",
+  "orientation": "portrait"
+}
+

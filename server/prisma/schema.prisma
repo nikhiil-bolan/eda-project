@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(uuid())
+  name              String
+  email             String            @unique
+  phone             String?
+  passwordHash      String
+  role              String            @default("USER") // USER, ADMIN
+  profileImage      String?
+  preferredLanguage String            @default("en")
+  city              String?
+  state             String?
+  evModel           String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  bookings          Booking[]
+  favorites         FavoriteStation[]
+  history           ChargingHistory[]
+  notifications     Notification[]
+  feedback          Feedback[]
+}
+
+model ChargingStation {
+  id                  String            @id @default(uuid())
+  name                String
+  operator            String
+  address             String
+  city                String
+  state               String
+  pincode             String?
+  latitude            Float
+  longitude           Float
+  openingTime         String            @default("00:00")
+  closingTime         String            @default("23:59")
+  contactNumber       String?
+  totalConnectors     Int               @default(4)
+  availableConnectors Int               @default(4)
+  status              String            @default("ACTIVE") // ACTIVE, INACTIVE, MAINTENANCE
+  amenities           String?           // Comma-separated
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  connectors          Connector[]
+  bookings            Booking[]
+  favorites           FavoriteStation[]
+  history             ChargingHistory[]
+  feedback            Feedback[]
+}
+
+model Connector {
+  id            String          @id @default(uuid())
+  stationId     String
+  station       ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  connectorType String          // CCS2, Type 2, GB/T, CHAdeMO, AC-001
+  powerKW       Float           @default(50.0)
+  pricePerKWh   Float           @default(18.0)
+  status        String          @default("AVAILABLE") // AVAILABLE, OCCUPIED, MAINTENANCE
+
+  bookings      Booking[]
+}
+
+model Booking {
+  id               String          @id @default(uuid())
+  bookingReference String          @unique
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stationId        String
+  station          ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  connectorId      String
+  connector        Connector       @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  bookingDate      String          // YYYY-MM-DD
+  startTime        String          // HH:mm
+  endTime          String          // HH:mm
+  durationHours    Float           @default(1.0)
+  amount           Float           @default(200.0)
+  vehicleType      String?
+  status           String          @default("CONFIRMED") // CONFIRMED, COMPLETED, CANCELLED, EXPIRED
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model FavoriteStation {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stationId String
+  station   ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+
+  @@unique([userId, stationId])
+}
+
+model ChargingHistory {
+  id               String          @id @default(uuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stationId        String
+  station          ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  energyConsumed   Float           // in kWh
+  amount           Float
+  chargingDuration String          // e.g. "45 mins"
+  chargingDate     DateTime        @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, BOOKING, ALERT
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stationId String
+  station   ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  rating    Int             @default(5)
+  message   String
+  createdAt DateTime        @default(now())
+}
+
+model InfrastructureData {
+  id                     String @id @default(uuid())
+  state                  String
+  year                   Int
+  registrations2W        Float  @default(0)
+  registrations3W        Float  @default(0)
+  registrations4W        Float  @default(0)
+  registrationsBus       Float  @default(0)
+  totalEVRegistrations   Float  @default(0)
+  publicChargingStations Float  @default(0)
+  slowChargers           Float  @default(0)
+  fastChargers           Float  @default(0)
+  populationMillion      Float  @default(0)
+  areaSqKm               Float  @default(0)
+  urbanizationPercentage Float  @default(0)
+  gdpTier                String @default("Medium")
+  evGrowthYoYPct         Float  @default(0)
+  chargerGrowthYoYPct    Float  @default(0)
+  evToChargerRatio       Float  @default(0)
+  evDensityPerSqKm       Float  @default(0)
+  chargersPerMillionPop  Float  @default(0)
+  gapScore               Float  @default(0)
+  gapTier                String @default("Moderate")
+}

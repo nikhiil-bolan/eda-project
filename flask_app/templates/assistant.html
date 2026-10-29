@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}EVA Assistant ⚡ EVision Enterprise{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Driver Services</span> / <span>AI Assistant (EVA)</span>
+  </div>
+  <h1 class="page-title">EVA (EVision Virtual Assistant)</h1>
+  <p class="page-subtitle">
+    Instant guidance on charging hubs, regional deficit metrics, and smart slot reservation protocols.
+  </p>
+</div>
+
+<div class="card chat-container" style="max-width: 800px; margin: 0 auto; height: 600px; display: flex; flex-direction: column;">
+  <!-- Chat Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div class="brand-icon" style="background: linear-gradient(135deg, #10B981, #0284C7);">🤖</div>
+      <div>
+        <h3 style="font-size: 0.95rem; font-weight: 800;">EVA AI Telemetry Engine</h3>
+        <span class="badge-cert">● Online & Ready</span>
+      </div>
+    </div>
+    <span style="font-size: 0.7rem; color: var(--text-muted);">Trained on BEE & VAHAN Specifications</span>
+  </div>
+
+  <!-- Messages Scroll Area -->
+  <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1.25rem 0; display: flex; flex-direction: column; gap: 1rem;">
+    <!-- Welcome message from EVA -->
+    <div class="chat-msg chat-assistant" style="align-self: flex-start; max-width: 80%; background: var(--bg-subtle); padding: 1rem; border-radius: 14px; border: 1px solid var(--border-color);">
+      <p style="font-size: 0.8rem; line-height: 1.5;">
+        👋 Hello! I am EVA (EVision Assistant). I can help you find high-speed CCS2 chargers, explain state Infrastructure Gap scores, or assist with booking confirmation passes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Quick Prompts Chips -->
+  <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem 0; border-top: 1px solid var(--border-color);">
+    <button onclick="sendQuickPrompt('How is the Infrastructure Gap Index calculated?')" class="chip-btn">
+      📊 How is Gap Index calculated?
+    </button>
+    <button onclick="sendQuickPrompt('Find high speed DC chargers in Mumbai')" class="chip-btn">
+      ⚡ DC Fast Chargers in Mumbai
+    </button>
+    <button onclick="sendQuickPrompt('How do I reserve a slot and get a digital pass?')" class="chip-btn">
+      🎫 How to reserve a bay?
+    </button>
+    <button onclick="sendQuickPrompt('What is the charging speed of a 60kW DC charger?')" class="chip-btn">
+      ⏱️ 60kW DC Charging Speed
+    </button>
+  </div>
+
+  <!-- Chat Input Box -->
+  <form onsubmit="handleChatSubmit(event)" style="display: flex; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+    <input
+      type="text"
+      id="chatInput"
+      placeholder="Ask about stations, battery calculation, or regional gap..."
+      class="form-input"
+      style="flex: 1;"
+      required
+    />
+    <button type="submit" class="btn-primary" style="padding: 0 1.5rem;">Send</button>
+  </form>
+</div>
+
+<script>
+  function appendMessage(sender, text) {
+    const chat = document.getElementById('chatMessages');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-msg chat-${sender}`;
+    if (sender === 'user') {
+      msgDiv.style.cssText = 'align-self: flex-end; max-width: 80%; background: #0284C7; color: white; padding: 0.85rem 1.15rem; border-radius: 14px; font-size: 0.8rem; line-height: 1.5;';
+    } else {
+      msgDiv.style.cssText = 'align-self: flex-start; max-width: 80%; background: var(--bg-subtle); color: var(--text-main); padding: 0.85rem 1.15rem; border-radius: 14px; border: 1px solid var(--border-color); font-size: 0.8rem; line-height: 1.5;';
+    }
+    msgDiv.textContent = text;
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function handleChatSubmit(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const q = input.value.trim();
+    if (!q) return;
+
+    appendMessage('user', q);
+    input.value = '';
+
+    // Query backend API
+    try {
+      const res = await fetch('/api/assistant/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q })
+      });
+      const data = await res.json();
+      setTimeout(() => {
+        appendMessage('assistant', data.answer);
+      }, 300);
+    } catch (err) {
+      setTimeout(() => {
+        appendMessage('assistant', 'I am here to guide you. You can browse stations on the Find Stations page, view live availability on the Map, or reserve a charging bay with instant UPI checkout.');
+      }, 300);
+    }
+  }
+
+  function sendQuickPrompt(promptText) {
+    document.getElementById('chatInput').value = promptText;
+    document.querySelector('.chat-container form').dispatchEvent(new Event('submit'));
+  }
+</script>
+{% endblock %}
+

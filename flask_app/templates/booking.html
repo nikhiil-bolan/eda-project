@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Reserve Charging Bay ⚡ {{ station.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <span>Charging Network</span> / <span>Find Stations</span> / <span>Slot Reservation</span>
+  </div>
+  <h1 class="page-title">Reserve a High-Speed Charging Bay</h1>
+  <p class="page-subtitle">
+    Guaranteed slot allocation, real-time connector hold, and bank-grade secure checkout.
+  </p>
+</div>
+
+<div class="booking-layout" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <!-- Left Side: Reservation Form & Payment Simulator -->
+  <div class="card">
+    <div class="card-header-clean">
+      <h3 class="card-title">1. Select Reservation Schedule</h3>
+    </div>
+
+    <form method="POST" action="/booking/{{ station.id }}" id="bookingForm" class="booking-form">
+      <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label class="form-label">Reservation Date</label>
+          <input type="date" name="date" id="bookDate" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Time Slot (1 Hour)</label>
+          <select name="time" id="bookTime" class="form-select">
+            <option value="09:00 - 10:00">09:00 AM - 10:00 AM</option>
+            <option value="11:00 - 12:00">11:00 AM - 12:00 PM</option>
+            <option value="14:00 - 15:00" selected>02:00 PM - 03:00 PM (Recommended)</option>
+            <option value="16:00 - 17:00">04:00 PM - 05:00 PM</option>
+            <option value="18:00 - 19:00">06:00 PM - 07:00 PM</option>
+            <option value="20:00 - 21:00">08:00 PM - 09:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label class="form-label">EV Model</label>
+          <input type="text" name="vehicle" placeholder="e.g. Tata Nexon EV" class="form-input" value="Tata Nexon EV Max" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Estimated Energy Needed</label>
+          <select id="energySelect" class="form-select" onchange="updateFare()">
+            <option value="20" selected>~20 kWh (Quick Top-Up 20% to 70%)</option>
+            <option value="30">~30 kWh (Standard Charge 20% to 85%)</option>
+            <option value="40">~40 kWh (Full Charge 10% to 100%)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live Fare Breakdown -->
+      <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          <span>Electricity Tariff</span>
+          <span class="font-bold">₹{{ station.pricePerKWh }}/kWh</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          <span>Energy Consumption Estimate</span>
+          <span id="kwhLabel" class="font-bold">20 kWh</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          <span>Platform Convenience Fee</span>
+          <span class="font-bold text-green">₹0.00 (Waived)</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 800; color: var(--text-main); border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.5rem;">
+          <span>Total Payable Deposit</span>
+          <span id="totalFareLabel" class="text-blue">₹370.00</span>
+        </div>
+        <input type="hidden" name="amount" id="amountInput" value="370.00" />
+      </div>
+
+      <!-- Payment Method Selection -->
+      <div style="margin-bottom: 1.5rem;">
+        <label class="form-label">Select Payment Method</label>
+        <div class="grid-4col" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+          <label style="border: 1px solid var(--primary-color); background: #F0F9FF; padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer;">
+            <input type="radio" name="paymentMethod" value="gpay" checked style="display: none;" />
+            <span style="font-size: 0.75rem; font-weight: 800; color: #0284C7; display: block;">Google Pay</span>
+          </label>
+          <label style="border: 1px solid var(--border-color); background: var(--bg-surface); padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer;">
+            <input type="radio" name="paymentMethod" value="phonepe" style="display: none;" />
+            <span style="font-size: 0.75rem; font-weight: 800; display: block;">PhonePe</span>
+          </label>
+          <label style="border: 1px solid var(--border-color); background: var(--bg-surface); padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer;">
+            <input type="radio" name="paymentMethod" value="paytm" style="display: none;" />
+            <span style="font-size: 0.75rem; font-weight: 800; display: block;">Paytm</span>
+          </label>
+          <label style="border: 1px solid var(--border-color); background: var(--bg-surface); padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer;">
+            <input type="radio" name="paymentMethod" value="bhim" style="display: none;" />
+            <span style="font-size: 0.75rem; font-weight: 800; display: block;">BHIM UPI</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 256-Bit Bank-Grade Security Assurance -->
+      <div style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+        <span style="font-size: 1.25rem;">🔒</span>
+        <div>
+          <h4 style="font-size: 0.8rem; font-weight: 800; color: #166534;">256-Bit Bank-Grade Encryption & Fraud Protection</h4>
+          <p style="font-size: 0.7rem; color: #15803D; margin-top: 0.15rem; line-height: 1.4;">
+            Your transaction is authenticated via NPCI Unified Payments Interface protocol. Immediate slot hold and digital pass delivery upon payment.
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary w-full" style="height: 48px; font-size: 0.9rem; font-weight: 800;">
+        Confirm Reservation & Pay Now →
+      </button>
+    </form>
+  </div>
+
+  <!-- Right Side: Station Summary Card -->
+  <div class="card" style="align-self: flex-start;">
+    <div class="card-header-clean">
+      <span class="station-badge">{{ station.operator }}</span>
+      <h3 class="station-name" style="margin-top: 0.25rem;">{{ station.name }}</h3>
+      <p class="station-address" style="margin-bottom: 1rem;">📍 {{ station.address }}</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 1rem 0; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+        <span class="text-muted">Connector Standard</span>
+        <span class="font-bold">{{ station.connectorType }} (CCS2 High Speed)</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+        <span class="text-muted">Power Output</span>
+        <span class="font-bold text-blue">{{ station.powerKW }} kW DC Fast</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+        <span class="text-muted">Live Bay Status</span>
+        <span class="font-bold text-green">{{ station.availableConnectors }} / {{ station.totalConnectors }} Available</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+        <span class="text-muted">Amenities</span>
+        <span class="font-bold" style="text-align: right; max-width: 180px;">{{ station.amenities }}</span>
+      </div>
+    </div>
+
+    <div style="background: var(--bg-subtle); padding: 1rem; border-radius: 12px; text-align: center;">
+      <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">Instant Cancellation Policy</span>
+      <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-top: 0.25rem;">
+        Free cancellation up to 15 minutes before your scheduled slot. 100% refund initiated instantly to original payment method.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const pricePerKwh = {{ station.pricePerKWh }};
+
+  function updateFare() {
+    const kwh = parseFloat(document.getElementById('energySelect').value);
+    const total = (kwh * pricePerKwh).toFixed(2);
+    document.getElementById('kwhLabel').textContent = `${kwh} kWh`;
+    document.getElementById('totalFareLabel').textContent = `₹${total}`;
+    document.getElementById('amountInput').value = total;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set tomorrow's date by default
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().split('T')[0];
+    const dateInput = document.getElementById('bookDate');
+    if (dateInput) {
+      dateInput.value = dateStr;
+      dateInput.min = new Date().toISOString().split('T')[0];
+    }
+    updateFare();
+  });
+</script>
+{% endblock %}
+
